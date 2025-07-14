@@ -1,0 +1,36 @@
+Given the goal '{goal}', analyze each of the {n_states} states provided by describing how close or far it is from achieving the goal.
+
+Based on this analysis, assign a score between 0 and 5 to each state, where:
+    - 0: The state is very far from the goal.
+    - 1: The state is far from the goal.
+    - 2: The state is somewhat far from the goal.
+    - 3: The state is somewhat close to the goal.
+    - 4: The state is close to the goal.
+    - 5: The state is very close to the goal.
+
+**Examples of State Characteristics:**
+    - **Score 0 or 1:**
+        - No cows in sight.
+        - No saplings for breeding.
+        - Low health due to unmet survival needs.
+
+    - **Score 2:**
+        - Survival needs are stable.
+        - Maybe saplings in inventory but no cows in sight.
+
+    - **Score 3 or 4:**
+        - One or more cows in sight.
+        - Health and survival metrics not critical.
+
+    - **Score 5:**
+        - A cow adjacent to the agent and saplings in inventory for breeding.
+
+Only take into account characteristics that are directly related to the goal. For example, if the strategy involves breeding, take saplings into account in your scoring; if the goal is simply hunting, ignore saplings in your evaluation; only consider health and vitals if they are explicitly stated in the goal.
+Do NOT repeat parts of the game description such as the different objects in the game or the game objective. 
+Only reflect on things that are directly related to the states and the goal.
+
+Once you reach a conclusion, always give your final answer with the following format:
+SCORES:<score for state 1>,<score for state 2>,...,<score for state {n_states}>
+
+For example, if scores of 1, 5 and 4 are assigned to state 1, 2 and 3 respectively, your answer would finish with: "SCORES:1,5,4".
+Make sure to finish your response with this final line: "SCORES:"

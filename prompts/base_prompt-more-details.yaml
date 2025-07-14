@@ -1,0 +1,71 @@
+#  from l15
+#  In addition to regular nodes, you can also create sequential nodes. Sequential nodes represent a series of sub-goals that must be completed in order to fulfill the parent goal.
+#  Sequential sub-goals are represented by a tuple of ids in the 'children' field of the parent node.
+#
+#  Example 1: given the goal of travelling from France to Spain, main options include (1) taking the plane, (2) taking the train, (3) driving, each of which would complete the goal.
+#  In this case these nodes would be provided as standard nodes, using the command ADD.
+#
+#  Example 2: given the goal of analysing a dataset, a plan of actions could be: (1) understand the data, (2) preprocess the data, (3) choose a model to analyse the data, (4) report findings with data visualisations.
+#  In this case these nodes would be provided as a sequential node, using the command ADD_SEQUENTIAL.
+
+strategy_context: |
+  You are going to provide the high-level strategy for a goal by proposing different options and breaking the problem down into progressively lower-level subgoals. 
+  The structure of goals and sub-goals will be organised in a tree structure, where the root node is the overall goal, and children of a node are different strategies, ie options of subgoals that can each help fulfill the parent node.
+  It is important to note that the children of a node represent different **independent** strategies. Each branch should be a viable way of getting to the overall without needing any other branch of the tree to be completed.  
+
+  Each node has two key measures:
+  - **Feasibility**: Confidence that this goal can be achieved, assessed independently of the parent.
+    - A feasibility of 1 means the goal is certain to be achieved.
+    - A feasibility of 0.5 reflects 50% confidence in the goal's achievability.
+  - **Value**: How restrictive the present goal is compared to its parent in terms of their potential to maximise expected returns. Especially between possible sub-goals, the higher value subgoal should correspond to the one that is expected to maximise expected rewards for the overall objectve.  
+    - A value of 1 means achieving this goal is as good as it gets for the parent goal. 
+    - A value of 0.5 suggests that achieving this goal is expected to yield half the parent’s potential returns.
+  
+  The tree will be built iteratively, starting with the root node. At each step, the most promising leaf node will be selected based on the highest product of feasibility and value, and you’ll be provided with its root-to-leaf path as a list of nodes.
+
+  You can one of the following but not both in the same response:
+  1. Break down the leaf node into children (use this only if you think the node should be broken down further, avoid unnecessary complexity), or
+  2. Leave it as a leaf node if it’s specific enough to represent clear, low-level actions that can be easily executed.
+  
+  If the root-to-leaf path includes sequential nodes, you will receive multiple leaf nodes. Apply the same process to each leaf, one after the other.
+
+  The root node (id=1) will already be in the tree. You will add children nodes to break it down. Before making decisions, reflect on:
+  1. Whether to break down the node,
+  2. Which nodes to add, and
+  3. How you assess their feasibility and value.
+  
+  When adding a node, make sure to **set the node's title as the subgoal's title followed by a concise description of the reason for the subgoal**.
+  
+  Use the appropriate command only when you are confident in your choice of subgoals and feasibility/value estimates. 
+  Finish your response after giving your commands.
+  Do not rehearse your commands. Once you give them it should be the end of your response.
+  
+
+tree_commands: |
+  ### Command Structure for Modifying the Tree
+
+  To execute a command, write it as a plain line without quotes or symbols. The available commands are:
+
+  - **ADD|[goal description]|[parent id (int)]|[feasibility]|[value]**: Add a new node.
+  - **MODIFY|[id (int)]|[new feasibility]|[new value]**: Modify the feasibility and value of an existing node.
+  - **REMOVE|[id (int)]**: Delete a node and all its children.
+  - **ADD_SEQUENTIAL|"Goal 1;Goal 2;...;Goal N"|[parent id]|[feasibility1]|[value1]|[feasibility2]|[value2]|...[feasibilityN]|[valueN]**: Add multiple sequential subgoals to the specified parent node. Goals are separated by semicolons. Make sure there are as many feasibility and values as there are goals.
+  - **READ_TREE**: read the current tree 
+  - **END_TREE**: Use this if the current strategy cannot be broken down any further. Use this command only if you are **absolutely** sure that you want to end the generation process. 
+  Note: do not use the character "|" inside the goal description.
+  Once you have executed a command or a set of command, finish your response. Do not write anything else after using a series of any of the commands above. You will have the opportunity to read the tree and make further modifications at the next iteration.
+
+provide_best_node: |
+  Here is the current most promising root-to-leaf path in the tree:
+  
+  {root_to_leaf_path}
+
+  Please evaluate this path and choose to either:
+  1. Break down the leaf node into children (use this only if you think the node should be broken down further, avoid unnecessary complexity), or
+  2. Leave it as a leaf node if it represents clear, low-level actions that an agent can easily execute.
+  
+  If you break down the node, explain your reasoning and use the ADD command to add new children. 
+  If you leave it as a leaf node, justify why it's specific enough. Then, you can ask to read the tree with READ_TREE, freely modify the nodes of your choice.
+  If you do not want to do any further changes to the tree, terminate the process with END_TREE.
+
+  Ensure you reflect carefully about the factors that can influence the feasibility and value of any new nodes you add, and provide a final estimation.

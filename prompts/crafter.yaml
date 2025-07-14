@@ -1,0 +1,86 @@
+goal_context: |
+  The environment is: Crafter
+  The overall goal is: "Fulfill as many achievements as possible".
+
+
+game_context: |
+  Crafter is an open-world survival game used as a reinforcement learning (RL) benchmark. The game focuses on evaluating an agent's general capabilities by presenting a procedurally generated, 2D environment where agents interact through visual inputs. Crafter is designed for deep exploration, long-term reasoning, and generalization, making it a rich environment for RL research.
+  
+  ### Environment Overview:
+  - **World Generation**: Each episode takes place in a procedurally generated 64x64 grid world. Terrain types include:
+    - **Grasslands**
+    - **Forests**
+    - **Lakes**
+    - **Mountains**
+    - **Caves**
+  
+    The terrain determines the distribution of creatures and resources. These elements are generated using OpenSimplex noise, ensuring smooth transitions between terrain types.
+  
+  ### Game Mechanics:
+  1. **Survival Needs**:
+     - **Health**: The player/agent has health points (HP), which are depleted by hunger, thirst, fatigue, or attacks from monsters. HP regenerate when hunger, thirst, and fatigue are satisfied.
+     - **Hunger**: Decreases over time; satisfied by eating meat (from cows) or plants.
+     - **Thirst**: Decreases over time; satisfied by drinking from lakes.
+     - **Rest**: Decreases over time; replenished by sleeping in safe areas.
+     - If any of these values (hunger, thirst, rest) reach zero, the player starts losing health.
+  
+  2. **Resources**:
+     - Resources can be collected and used to craft tools. They include:
+       - **Wood** (from trees)
+       - **Stone**
+       - **Coal**
+       - **Iron**
+       - **Diamonds**
+       - **Saplings** (plants that can be grown for food)
+     
+  3. **Crafting and Technology Tree**:
+     - Players can use a **crafting table** and a **furnace** to craft tools:
+       - **Wood Pickaxe** and **Wood Sword**
+       - **Stone Pickaxe** and **Stone Sword**
+       - **Iron Pickaxe** and **Iron Sword**
+     - Higher-tier tools like the iron pickaxe and sword require more advanced resources (iron, coal) and improve efficiency in collecting resources and defeating enemies.
+  
+  4. **Creatures**:
+     - **Cows**: Source of meat (food).
+     - **Zombies**: Appear in grasslands, especially at night.
+     - **Skeletons**: Found in caves; they attack with arrows.
+     - At night, zombie spawns increase, making it more dangerous for the agent.
+  
+  5. **Day-Night Cycle**:
+     - **Night** increases the difficulty by reducing the agent's visibility and increasing zombie spawns. The agent needs to find shelter (like caves) to avoid nighttime dangers.
+  
+  6. **Achievements**:
+     - The environment includes **22 achievements**, each representing a task the agent can complete, with many requiring specific dependencies to be fulfilled before they become accessible. 
+       - Collect Wood
+       - Place Table (requires: Collect Wood)
+       - Make Wood Pickaxe (requires: Place Table)
+       - Make Wood Sword (requires: Place Table)
+       - Collect Stone (requires: Make Wood Pickaxe)
+       - Place Stone (requires: Collect Stone)
+       - Make Stone Pickaxe (requires: Collect Stone)
+       - Make Stone Sword (requires: Collect Stone)
+       - Collect Coal (requires: Make Stone Pickaxe)
+       - Collect Iron (requires: Make Stone Pickaxe)
+       - Place Furnace (requires: Collect Stone, Collect Wood)
+       - Make Iron Pickaxe (requires: Collect Coal, Collect Iron, Place Furnace)
+       - Make Iron Sword (requires: Collect Coal, Collect Iron, Place Furnace)
+       - Collect Diamond (requires: Make Iron Pickaxe)
+       - Collect Drink
+       - Defeat Zombie
+       - Defeat Skeleton
+       - Eat Cow
+       - Collect Sapling
+       - Place Plant (requires: Collect Sapling)
+       - Eat Plant (requires: Place Plant)
+       - Wake Up
+     - Each achievement can be unlocked during an episode, rewarding the agent with sparse rewards.
+  
+  ### Game Interface:
+  - **Observation**: Agents receive 64x64 pixel images representing a top-down view of the world, including an 8x8 grid area surrounding the player and an inventory display (health, hunger, thirst, rest, collected materials).
+  - **Action Space**: A flat categorical space with 17 actions, including movement, interacting with objects (e.g., gathering resources or attacking), crafting tools, and placing objects.
+
+  # Other important comments:
+  Blocks that can be freely moved through are: grass, path, sand.
+  Blocks that can be placed and easily destroyed are: stone, tree, table, furnace.
+  Blocks that can be destroyed are: coal, iron, diamond, water.
+  Blocks that can neither be moved through nor destroyed are: lava.

@@ -1,0 +1,9 @@
+model: "PPO"
+model_params:
+  policy: "CnnPolicy"  # MlpPolicy, CnnPolicy
+  batch_size: 64
+  clip_range: 0.2
+train_ts: 2_000_000
+log_interval: 20_000
+checkpoint_interval: 500_000
+n_eval_episodes: 10

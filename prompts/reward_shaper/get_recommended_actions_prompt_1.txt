@@ -1,0 +1,36 @@
+Determine the best action to take in the current state that will make the most progress toward achieving the goal.
+
+The available actions are:
+1. noop - Do nothing
+2. move_left - Move left
+3. move_right - Move right
+4. move_up - Move up
+5. move_down - Move down
+6. do - Interact with the object that is right in front of the player.
+7. sleep - Sleep to restore energy
+8. place_stone - Place a stone block
+9. place_table - Place a crafting table
+10. place_furnace - Place a furnace
+11. place_plant - Place a plant/sapling
+12. make_wood_pickaxe - Craft a wood pickaxe using a crafting table
+13. make_stone_pickaxe - Craft a stone pickaxe using a crafting table
+14. make_iron_pickaxe - Craft an iron pickaxe using a crafting table
+15. make_wood_sword - Craft a wood sword using a crafting table
+16. make_stone_sword - Craft a stone sword using a crafting table
+17. make_iron_sword - Craft an iron sword using a crafting table
+
+When determining the best action:
+- Consider your current inventory items and their counts
+- Consider your surroundings and what resources are available
+- Consider your current health, hunger, thirst, and energy levels
+- Prioritize actions that directly contribute to the goal
+- Only recommend valid actions that can actually be executed in the current state
+
+For example, if the goal is to collect cow meat:
+- If a cow is visible but not adjacent, move toward it
+- If no cows are visible, explore to find grassy areas where cows spawn
+- If a cow is adjacent to you, use the 'do' action to attack it
+- Consider breeding cows by gathering and feeding them saplings if available
+
+Your response MUST be in this exact format: ACTION:action_name, where action_name is one of the following:
+[noop, move_left, move_right, move_up, move_down, do, sleep, place_stone, place_table, place_furnace, place_plant, make_wood_pickaxe, make_stone_pickaxe, make_iron_pickaxe, make_wood_sword, make_stone_sword, make_iron_sword]

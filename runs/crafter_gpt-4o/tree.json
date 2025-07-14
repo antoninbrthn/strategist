@@ -1,0 +1,113 @@
+[
+    {
+        "id": 1,
+        "goal": "The environment is: Crafter\nThe overall goal is: \"Fulfill as many achievements as possible\".\n\nCrafter is an open-world survival game used as a reinforcement learning (RL) benchmark. The game focuses on evaluating an agent's general capabilities by presenting a procedurally generated, 2D environment where agents interact through visual inputs. Crafter is designed for deep exploration, long-term reasoning, and generalization, making it a rich environment for RL research.\n\n### Environment Overview:\n- **World Generation**: Each episode takes place in a procedurally generated 64x64 grid world. Terrain types include:\n  - **Grasslands**\n  - **Forests**\n  - **Lakes**\n  - **Mountains**\n  - **Caves**\n\n  The terrain determines the distribution of creatures and resources. These elements are generated using OpenSimplex noise, ensuring smooth transitions between terrain types.\n\n### Game Mechanics:\n1. **Survival Needs**:\n   - **Health**: The player/agent has health points (HP), which are depleted by hunger, thirst, fatigue, or attacks from monsters. HP regenerate when hunger, thirst, and fatigue are satisfied.\n   - **Hunger**: Decreases over time; satisfied by eating meat (from cows) or plants.\n   - **Thirst**: Decreases over time; satisfied by drinking from lakes.\n   - **Rest**: Decreases over time; replenished by sleeping in safe areas.\n   - If any of these values (hunger, thirst, rest) reach zero, the player starts losing health.\n\n2. **Resources**:\n   - Resources can be collected and used to craft tools. They include:\n     - **Wood** (from trees)\n     - **Stone**\n     - **Coal**\n     - **Iron**\n     - **Diamonds**\n     - **Saplings** (plants that can be grown for food)\n   \n3. **Crafting and Technology Tree**:\n   - Players can use a **crafting table** and a **furnace** to craft tools:\n     - **Wood Pickaxe** and **Wood Sword**\n     - **Stone Pickaxe** and **Stone Sword**\n     - **Iron Pickaxe** and **Iron Sword**\n   - Higher-tier tools like the iron pickaxe and sword require more advanced resources (iron, coal) and improve efficiency in collecting resources and defeating enemies.\n\n4. **Creatures**:\n   - **Cows**: Source of meat (food).\n   - **Zombies**: Appear in grasslands, especially at night.\n   - **Skeletons**: Found in caves; they attack with arrows.\n   - At night, zombie spawns increase, making it more dangerous for the agent.\n\n5. **Day-Night Cycle**:\n   - **Night** increases the difficulty by reducing the agent's visibility and increasing zombie spawns. The agent needs to find shelter (like caves) to avoid nighttime dangers.\n\n6. **Achievements**:\n   - The environment includes **22 achievements**, each representing a task the agent can complete, with many requiring specific dependencies to be fulfilled before they become accessible. \n     - Collect Wood\n     - Place Table (requires: Collect Wood)\n     - Make Wood Pickaxe (requires: Place Table)\n     - Make Wood Sword (requires: Place Table)\n     - Collect Stone (requires: Make Wood Pickaxe)\n     - Place Stone (requires: Collect Stone)\n     - Make Stone Pickaxe (requires: Collect Stone)\n     - Make Stone Sword (requires: Collect Stone)\n     - Collect Coal (requires: Make Stone Pickaxe)\n     - Collect Iron (requires: Make Stone Pickaxe)\n     - Place Furnace (requires: Collect Stone, Collect Wood)\n     - Make Iron Pickaxe (requires: Collect Coal, Collect Iron, Place Furnace)\n     - Make Iron Sword (requires: Collect Coal, Collect Iron, Place Furnace)\n     - Collect Diamond (requires: Make Iron Pickaxe)\n     - Collect Drink\n     - Defeat Zombie\n     - Defeat Skeleton\n     - Eat Cow\n     - Collect Sapling\n     - Place Plant (requires: Collect Sapling)\n     - Eat Plant (requires: Place Plant)\n     - Wake Up\n   - Each achievement can be unlocked during an episode, rewarding the agent with sparse rewards.\n\n### Game Interface:\n- **Observation**: Agents receive 64x64 pixel images representing a top-down view of the world, including an 8x8 grid area surrounding the player and an inventory display (health, hunger, thirst, rest, collected materials).\n- **Action Space**: A flat categorical space with 17 actions, including movement, interacting with objects (e.g., gathering resources or attacking), crafting tools, and placing objects.\n\n# Other important comments:\nBlocks that can be freely moved through are: grass, path, sand.\nBlocks that can be placed and easily destroyed are: stone, tree, table, furnace.\nBlocks that can be destroyed are: coal, iron, diamond, water.\nBlocks that can neither be moved through nor destroyed are: lava.\n",
+        "feasibility": 1,
+        "value": 1,
+        "parent": null,
+        "children": [
+            2,
+            3,
+            4,
+            5
+        ],
+        "sequential": false
+    },
+    {
+        "id": 2,
+        "goal": "Resource Gathering: Focus on collecting primary resources required for various achievements",
+        "feasibility": 0.9,
+        "value": 1.0,
+        "parent": 1,
+        "children": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+        ],
+        "sequential": false
+    },
+    {
+        "id": 3,
+        "goal": "Tool Crafting: Use collected resources to create essential tools needed for higher-tier activities",
+        "feasibility": 0.8,
+        "value": 0.8,
+        "parent": 1,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 4,
+        "goal": "Survival Needs Management: Maintain hunger, thirst, rest, and health to ensure the agent can complete other goals efficiently",
+        "feasibility": 0.7,
+        "value": 0.7,
+        "parent": 1,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 5,
+        "goal": "Combat and Exploration: Manage combat with creatures and explore the environment to unlock achievements related to enemies and rare resources",
+        "feasibility": 0.6,
+        "value": 0.9,
+        "parent": 1,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 6,
+        "goal": "Collect Wood: Essential for basic crafting and initial achievements",
+        "feasibility": 0.95,
+        "value": 1.0,
+        "parent": 2,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 7,
+        "goal": "Collect Stone: Needed for crafting higher-tier tools",
+        "feasibility": 0.9,
+        "value": 0.85,
+        "parent": 2,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 8,
+        "goal": "Collect Coal: Required for crafting iron tools and smelting",
+        "feasibility": 0.85,
+        "value": 0.8,
+        "parent": 2,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 9,
+        "goal": "Collect Iron: Needed for crafting higher-tier tools",
+        "feasibility": 0.8,
+        "value": 0.75,
+        "parent": 2,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 10,
+        "goal": "Collect Diamond: A rare resource needed for high-level achievements",
+        "feasibility": 0.6,
+        "value": 0.9,
+        "parent": 2,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 11,
+        "goal": "Collect Sapling: Important for future food-related achievements",
+        "feasibility": 0.85,
+        "value": 0.7,
+        "parent": 2,
+        "children": [],
+        "sequential": false
+    }
+]

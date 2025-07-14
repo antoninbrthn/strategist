@@ -1,0 +1,9 @@
+[submodule "data/crafter"]
+	path = data/crafter
+	url = https://github.com/antoninbrthn/crafter.git
+[submodule "data/SmartPlay"]
+	path = data/SmartPlay
+	url = https://github.com/maxruizluyten/SmartPlay.git
+[submodule "Eureka"]
+	path = Eureka
+	url = https://github.com/maxruizluyten/Eureka.git

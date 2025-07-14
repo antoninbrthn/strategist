@@ -1,0 +1,5 @@
+model: "gpt-4o"
+alias: "crafter"
+base_prompt_file: "base_prompt-more-details.yaml"
+game_prompt_file: "crafter.yaml"
+env_name: "crafter"

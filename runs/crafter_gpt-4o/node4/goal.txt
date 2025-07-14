@@ -1,0 +1,1 @@
+Survival Needs Management: Maintain hunger, thirst, rest, and health to ensure the agent can complete other goals efficiently

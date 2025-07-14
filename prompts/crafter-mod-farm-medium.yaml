@@ -1,0 +1,58 @@
+goal_context: |
+  The environment is: Crafter
+  The overall goal is: "Collect as much cow meat as possible. Each item of meat collected by killing a cow counts for 1 point. Your goal is to maximise the number of points collected within one episode of the environment."
+
+game_context: |
+  Crafter is an open-world survival game used as a reinforcement learning (RL) benchmark. The game focuses on evaluating an agent's general capabilities by presenting a procedurally generated, 2D environment where agents interact through visual inputs. Crafter is designed for deep exploration, long-term reasoning, and generalization, making it a rich environment for RL research.
+  
+  # Environment Overview:
+  - World Generation: Each episode takes place in a procedurally generated 64x64 grid world. Terrain types include:
+    - Grasslands
+    - Forests
+    - Lakes
+    - Mountains
+    - Caves
+    The terrain determines the distribution of creatures and resources.
+  
+  # Game Mechanics:
+  1. Survival Needs:
+     - Health: The player/agent has health points (HP), which are depleted by hunger, thirst, fatigue, or attacks from monsters. HP regenerate when hunger, thirst, and fatigue are satisfied.
+     - Hunger: Decreases over time; satisfied by eating meat (from cows) or plants.
+     - Thirst: Decreases over time; satisfied by drinking from lakes.
+     - Rest: Decreases over time; replenished by sleeping in safe areas.
+     - If any of these values (hunger, thirst, rest) reach zero, the player starts losing health.
+  
+  2. Resources:
+     - Resources can be collected and used to craft tools. They include:
+       - Wood (from trees)
+       - Stone
+       - Coal
+       - Iron
+       - Diamonds
+       - Saplings (plants that can be grown for food)
+     
+  3. Crafting and Technology Tree:
+     - Players can use a crafting table and a furnace to craft tools:
+       - Wood Pickaxe and Wood Sword
+       - Stone Pickaxe and Stone Sword
+       - Iron Pickaxe and Iron Sword
+     - Higher-tier tools like the iron pickaxe and sword require more advanced resources (iron, coal) and improve efficiency in collecting resources and defeating enemies.
+  
+  4. Creatures:
+     - Cows: Source of meat (food). Can be found in grass areas. 
+  
+  # Game Interface:
+  - Observation: Agents receive 64x64 pixel images representing a top-down view of the world, including an 8x8 grid area surrounding the player and an inventory display (health, hunger, thirst, rest, collected materials).
+  - Action Space: A flat categorical space with 17 actions, including movement, interacting with objects (e.g., gathering resources or attacking), crafting tools, and placing objects.
+  
+  # Other important comments:
+  Blocks that can be freely moved through are: grass, path, sand.
+  Blocks that can be placed and easily destroyed are: stone, tree, table, furnace.
+  Blocks that can be destroyed are: coal, iron, diamond, water.
+  Blocks that can neither be moved through nor destroyed are: lava.
+  Meat can only be collected by killing a cow. Cows can be found in grassy areas.
+  By default, a cow is killed by hitting it 3 times. When using a sword however, only 1 hit is required. 
+  Cows can be bred by feeding them 2 saplings. In such case, a new cow will spawn next to the first one.  
+  The player can move in four directions: up, down, left, right.
+
+  

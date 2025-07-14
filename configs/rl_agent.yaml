@@ -1,0 +1,28 @@
+### 1. CustomPPO
+model: "CustomPPO"  # DQN, PPO, CustomPPO (PPO with batched custom reward function)
+model_params:
+  policy: "CnnPolicy"  # MlpPolicy, CnnPolicy
+  batch_size: 64
+  n_steps: 2048
+  clip_range: 0.2
+  alpha: 1
+  alpha_schedule: [1, 0, 100_000, 200_000]  # (start, end, decay_start, decay_end)
+  custom_reward_range: 0.1  # range of custom reward: [-0.1, 0.1]
+  decay_function: "linear"  # linear, poly_X for polynomial with exponent X
+  reward_mode: "direct"
+  gamma: 0.99  # default
+train_ts: 5_000 #3_000_000
+reward_config:
+  llm_model: "gpt-4o"  # try better annotations  # "gpt-4o-mini", "meta-llama/Llama-3.2-3B-Instruct", "meta-llama/Llama-3.1-8B-Instruct", "mistralai/Ministral-8B-Instruct-2410"
+  n_samples: 10_000  # number of pairs of samples to annotate to train the reward function
+  n_sapling_contrast: 0  # number of frames contrasting saplings to collect
+  mixup_factor: 10  # mixup factor for data augmentation
+  reward_model_architecture: resnet18 # resnet18, mobilenet_v3_small, mobilenet_v3_large, shufflenet_v2_x1_0
+  train_reward_epochs: 10  # number of epochs to train the reward function
+  early_stopping: False  # stop training the reward function early if the test loss does not improve
+  human_annotation_ratio: 1  # only need human demo for survival  # ratio of human annotations to use to train the reward function (0: only synthetic, 1: only human)
+  normalization: "tanh"  # sigmoid: reward in [0,1]; tanh: reward in [-1,1]
+  prompt_version_scores: 1  # prompt version for scores
+checkpoint_interval: 500_000
+log_interval: 20_000
+n_eval_episodes: 10

@@ -1,0 +1,6 @@
+model: "gpt-4o"
+alias: "crafter-mod-farm-easy"
+base_prompt_file: "base_prompt.yaml"
+game_prompt_file: "crafter-mod-farm-easy.yaml"
+env_name: "crafter"
+difficulty: "easy"

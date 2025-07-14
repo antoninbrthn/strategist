@@ -1,0 +1,168 @@
+[
+    {
+        "id": 1,
+        "goal": "The environment is: Crafter\nThe overall goal is: \"Collect as much cow meat as possible. Each item of meat collected by killing a cow counts for 1 point. Your goal is to maximise the number of points collected within one episode of the environment.\"\n\nCrafter is an open-world survival game used as a reinforcement learning (RL) benchmark. The game focuses on evaluating an agent's general capabilities by presenting a procedurally generated, 2D environment where agents interact through visual inputs. Crafter is designed for deep exploration, long-term reasoning, and generalization, making it a rich environment for RL research.\n\n# Environment Overview:\n- World Generation: Each episode takes place in a procedurally generated 64x64 grid world. Terrain types include:\n  - Grasslands\n  - Forests\n  - Lakes\n  - Mountains\n  - Caves\n  The terrain determines the distribution of creatures and resources.\n\n# Game Mechanics:\n1. Survival Needs:\n   - Health: The player/agent has health points (HP), which are depleted by hunger, thirst, fatigue, or attacks from monsters. HP regenerate when hunger, thirst, and fatigue are satisfied.\n   - Hunger: Decreases over time; satisfied by eating meat (from cows) or plants.\n   - Thirst: Decreases over time; satisfied by drinking from lakes.\n   - Rest: Decreases over time; replenished by sleeping in safe areas.\n   - If any of these values (hunger, thirst, rest) reach zero, the player starts losing health.\n\n2. Resources:\n   - Resources can be collected and used to craft tools. They include:\n     - Wood (from trees)\n     - Stone\n     - Coal\n     - Iron\n     - Diamonds\n     - Saplings (plants that can be grown for food)\n   \n3. Crafting and Technology Tree:\n   - Players can use a crafting table and a furnace to craft tools:\n     - Wood Pickaxe and Wood Sword\n     - Stone Pickaxe and Stone Sword\n     - Iron Pickaxe and Iron Sword\n   - Higher-tier tools like the iron pickaxe and sword require more advanced resources (iron, coal) and improve efficiency in collecting resources and defeating enemies.\n\n4. Creatures:\n   - Cows: Source of meat (food). Can be found in grass areas. \n\n# Game Interface:\n- Observation: Agents receive 64x64 pixel images representing a top-down view of the world, including an 8x8 grid area surrounding the player and an inventory display (health, hunger, thirst, rest, collected materials).\n- Action Space: A flat categorical space with 17 actions, including movement, interacting with objects (e.g., gathering resources or attacking), crafting tools, and placing objects.\n\n# Other important comments:\nBlocks that can be freely moved through are: grass, path, sand.\nBlocks that can be placed and easily destroyed are: stone, tree, table, furnace.\nBlocks that can be destroyed are: coal, iron, diamond, water.\nBlocks that can neither be moved through nor destroyed are: lava.\nMeat can only be collected by killing a cow. Cows can be found in grassy areas. \nA cow is killed by hitting it 1 time. No weapons or tools are required to kill a cow.\nCows can be bred by feeding them 1 sapling. In such case, a new cow will spawn next to the first one.  \nThe player can move in four directions: up, down, left, right.\n",
+        "parent": null,
+        "children": [
+            2,
+            3,
+            4,
+            5
+        ],
+        "sequential": false,
+        "feasibility": 1,
+        "value": 1
+    },
+    {
+        "id": 2,
+        "goal": "Direct Cow Hunting (Seek and Hunt Cows Directly)",
+        "parent": 1,
+        "children": [],
+        "sequential": false,
+        "feasibility": 1,
+        "value": 1
+    },
+    {
+        "id": 3,
+        "goal": "Preparation (Gather Resources and Craft Tools)",
+        "parent": 1,
+        "children": [
+            6
+        ],
+        "sequential": false,
+        "feasibility": 1,
+        "value": 0.3
+    },
+    {
+        "id": 4,
+        "goal": "Breeding Cows",
+        "parent": 1,
+        "children": [
+            15
+        ],
+        "sequential": false,
+        "feasibility": 1,
+        "value": 0.8
+    },
+    {
+        "id": 5,
+        "goal": "Maintaining Health and Survival Needs",
+        "parent": 1,
+        "children": [
+            11
+        ],
+        "sequential": false,
+        "feasibility": 1,
+        "value": 0.7
+    },
+    {
+        "id": 6,
+        "goal": "Plan(Gather Basic Resources (Wood and Stone);Craft Basic Tools (Wood Pickaxe and Wood Sword);Gather Advanced Resources (Iron, Coal);Craft Advanced Tools (Iron Pickaxe and Iron Sword))",
+        "parent": 3,
+        "children": [
+            7,
+            8,
+            9,
+            10
+        ],
+        "sequential": true,
+        "feasibility": 1,
+        "value": 0.2
+    },
+    {
+        "id": 7,
+        "goal": "Gather Basic Resources (Wood and Stone)",
+        "parent": 6,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 8,
+        "goal": "Craft Basic Tools (Wood Pickaxe and Wood Sword)",
+        "parent": 6,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 9,
+        "goal": "Gather Advanced Resources (Iron, Coal)",
+        "parent": 6,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 10,
+        "goal": "Craft Advanced Tools (Iron Pickaxe and Iron Sword)",
+        "parent": 6,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 11,
+        "goal": "Plan(Satisfy Hunger;Satisfy Thirst;Ensure Adequate Rest)",
+        "parent": 5,
+        "children": [
+            12,
+            13,
+            14
+        ],
+        "sequential": true,
+        "feasibility": 1,
+        "value": 0.4
+    },
+    {
+        "id": 12,
+        "goal": "Satisfy Hunger",
+        "parent": 11,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 13,
+        "goal": "Satisfy Thirst",
+        "parent": 11,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 14,
+        "goal": "Ensure Adequate Rest",
+        "parent": 11,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 15,
+        "goal": "Plan(Collect Saplings;Find Cows;Feed Cows with Saplings)",
+        "parent": 4,
+        "children": [
+            16,
+            17,
+            18
+        ],
+        "sequential": true,
+        "feasibility": 1,
+        "value": 0.8
+    },
+    {
+        "id": 16,
+        "goal": "Collect Saplings",
+        "parent": 15,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 17,
+        "goal": "Find Cows",
+        "parent": 15,
+        "children": [],
+        "sequential": false
+    },
+    {
+        "id": 18,
+        "goal": "Feed Cows with Saplings",
+        "parent": 15,
+        "children": [],
+        "sequential": false
+    }
+]
