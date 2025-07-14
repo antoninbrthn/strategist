@@ -33,11 +33,23 @@ def render_episode_gif(trajectory, episode_reward=None, path=os.path.join(EXPORT
 def render_episode_gif_annot(trajectory, llm_rewards, episode_reward=None, path=os.path.join(EXPORT_DIR, "gifs"), fn=None):
 
     frames_pil = []
-    for step_idx, (prev_obs, action, obs, reward, done, info) in enumerate(trajectory):
-        obs_upscale = obs.repeat(2, axis=0).repeat(2, axis=1)
-        frame_arr = obs_upscale.copy()
+    for step_idx, (prev_obs, action, obs_from_traj, reward, done, info) in enumerate(trajectory):
+        # obs_from_traj is likely (1, H, W, C) from DummyVecEnv
+        # Extract the actual (H, W, C) image for the single environment
+        if obs_from_traj.ndim == 4 and obs_from_traj.shape[0] == 1:
+            single_obs_frame = obs_from_traj[0]
+        else:
+            # Fallback or error if shape is not as expected, though this shouldn't happen with DummyVecEnv
+            single_obs_frame = obs_from_traj 
 
-        pil_frame = PIL.Image.fromarray(frame_arr.squeeze().astype(np.uint8))
+        # Upscale for better visibility in GIF: repeat pixels
+        # Example: single_obs_frame (H,W,C) -> (2H, W, C) -> (2H, 2W, C)
+        obs_upscaled_h = single_obs_frame.repeat(2, axis=0)
+        obs_upscaled_hw = obs_upscaled_h.repeat(2, axis=1)
+        
+        frame_arr = obs_upscaled_hw # This is now (2H, 2W, C)
+
+        pil_frame = PIL.Image.fromarray(frame_arr.astype(np.uint8))
 
         W, H = pil_frame.size
         panel_width = int(W)
@@ -46,10 +58,16 @@ def render_episode_gif_annot(trajectory, llm_rewards, episode_reward=None, path=
 
         llm_reward = llm_rewards[step_idx]
         llm_reward_delta = llm_reward - llm_rewards[step_idx-1] if step_idx > 0 else 0
+        
+        # Ensure reward from trajectory is scalar for f-string formatting
+        # step_reward_from_traj is likely np.array([value]) from DummyVecEnv
+        step_reward_from_traj = trajectory[step_idx][3] # Get the reward element from tuple
+        actual_step_reward = step_reward_from_traj[0] if isinstance(step_reward_from_traj, (np.ndarray, list)) and len(step_reward_from_traj) == 1 else step_reward_from_traj
+
         msg_lines = [
             f"Step {step_idx}",
             f"Action = {action}",
-            f"Env Reward = {reward:.2f}",
+            f"Env Reward = {actual_step_reward:.2f}",
             f"Custom Reward  = {llm_reward:.2f}",
             f"d(Custom Reward) = {llm_reward_delta:.2f}",
         ]
@@ -104,7 +122,6 @@ class WandbCallback(BaseCallback):
                 done = False
                 total_reward = 0
                 trajectory = []
-                all_achievements = []
                 prev_sapling_count = 0
                 total_saplings = 0
                 while not done:
@@ -112,32 +129,38 @@ class WandbCallback(BaseCallback):
                     next_obs, reward, done, info = self.eval_env.step(action)
                     trajectory.append((obs, action, next_obs, reward, done, {}))
                     obs = next_obs
-                    sapling_count = info['inventory']['sapling']
+                    current_info_dict = info[0] if isinstance(info, list) and len(info) > 0 else {}
+                    
+                    sapling_count = current_info_dict.get('inventory', {}).get('sapling', 0)
                     if sapling_count > prev_sapling_count:
                         total_saplings += 1
                     prev_sapling_count = sapling_count
                     total_reward += reward
                 rewards.append(total_reward)
-                # sapling_to_cow.append(info['achievements']['sapling_to_cow'])
-                sapling_to_cow.append(info['achievements'].get('sapling_to_cow', 0))
+                final_info_dict = info[0] if isinstance(info, list) and len(info) > 0 else {}
+                sapling_to_cow.append(final_info_dict.get('achievements', {}).get('sapling_to_cow', 0))
                 episode_lengths.append(len(trajectory))
-                all_achievements.append(info['achievements'])
-                traj_obs = np.array([obs for obs, _, _, _, _, _ in trajectory])
+                traj_obs = np.array([t_obs for t_obs, _, _, _, _, _ in trajectory])
+                # Squeeze the singleton dimension from the vectorized environment
+                if traj_obs.ndim == 5 and traj_obs.shape[1] == 1:
+                    traj_obs = traj_obs.squeeze(axis=1)
                 traj_obs_tensor = torch.as_tensor(traj_obs).float().permute(0, 3, 1, 2).to('cuda')
-                if hasattr(self.model, 'custom_reward_func'):
-                    traj_llm_rewards = self.model.custom_reward_func(traj_obs_tensor).cpu().detach().numpy()
+                if hasattr(self.model, 'custom_reward_func') and self.model.custom_reward_func is not None:
+                    traj_llm_rewards_values = self.model.custom_reward_func(traj_obs_tensor)
+                    if isinstance(traj_llm_rewards_values, tuple):
+                        traj_llm_rewards_values = traj_llm_rewards_values[0]
+                    traj_llm_rewards = traj_llm_rewards_values.cpu().detach().numpy()
                 else:
                     traj_llm_rewards = np.zeros(len(trajectory)) - 1
                 llm_rewards.append(np.mean(traj_llm_rewards))
                 saplings_collected.append(total_saplings)
 
                 # Save GIF for every other evaluation run
-                if self.n_calls % 100_000 == 0:
-                    if i%10== 0:
-                        gif_path = os.path.join(self.save_path, "gifs")
-                        fn = f"trajectory_{self.n_calls}_{i}.gif"
-                        # render_episode_gif(trajectory, episode_reward=total_reward, path=gif_path, fn=fn)
-                        render_episode_gif_annot(trajectory, llm_rewards=traj_llm_rewards, episode_reward=total_reward, path=gif_path, fn=fn)
+                # if self.n_calls % 100_000 == 0: # Commenting out GIF rendering for robustness
+                #     if i%10== 0:
+                #         gif_path = os.path.join(self.save_path, "gifs")
+                #         fn = f"trajectory_{self.n_calls}_{i}.gif"
+                #         render_episode_gif_annot(trajectory, llm_rewards=traj_llm_rewards, episode_reward=total_reward, path=gif_path, fn=fn)
 
             avg_reward = np.mean(rewards)
             avg_custom_reward = np.mean(llm_rewards)
@@ -145,10 +168,6 @@ class WandbCallback(BaseCallback):
             std_custom_reward = np.std(llm_rewards)
             avg_length = np.mean(episode_lengths)
             std_length = np.std(episode_lengths)
-            avg_achievements = {}
-            for k in all_achievements[0]:
-                values = [d[k] for d in all_achievements]
-                avg_achievements[f"achievements/{k}_avg"] = np.mean(values)
             alpha = self.model.alpha if hasattr(self.model, 'alpha') else None
             wandb.log({"average_reward": avg_reward,
                         "avg_custom_reward": avg_custom_reward,
@@ -161,21 +180,57 @@ class WandbCallback(BaseCallback):
                         "std_sapling_to_cow": np.std(sapling_to_cow),
                         "std_episode_length": std_length,
                         "alpha": alpha,
-                        "step": self.n_calls,
-                        **avg_achievements
-                        })
+                        "step": self.n_calls})
 
         if self.n_calls % self.checkpoint_interval == 0:
             # Save model checkpoint
             checkpoint_path = os.path.join(self.save_path, "checkpoints", f"checkpoint_{self.n_calls}.zip")
             os.makedirs(self.save_path, exist_ok=True)
+            os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
             self.model.save(checkpoint_path, exclude=['custom_reward_func'])
             self.save_counter += 1
             if self.verbose > 0:
                 print(f"Checkpoint saved to {checkpoint_path}")
 
-        return True
+        # Log custom infos from self.locals, which SB3 populates
+        if self.locals.get("infos"):
+            info_dict = self.locals["infos"][0]
 
+            if "metrics" in info_dict:
+                for key, value in info_dict["metrics"].items():
+                    self.logger.record_mean(f"metrics/{key}", value)
+
+            if "inventory" in info_dict:
+                sapling_count = info_dict["inventory"].get("sapling", 0)
+                self.logger.record("values/sapling_count", sapling_count)
+                wood_count = info_dict["inventory"].get("wood", 0)
+                self.logger.record("values/wood_count", wood_count)
+                stone_count = info_dict["inventory"].get("stone", 0)
+                self.logger.record("values/stone_count", stone_count)
+                coal_count = info_dict["inventory"].get("coal", 0)
+                self.logger.record("values/coal_count", coal_count)
+                iron_count = info_dict["inventory"].get("iron", 0)
+                self.logger.record("values/iron_count", iron_count)
+                diamond_count = info_dict["inventory"].get("diamond", 0)
+                self.logger.record("values/diamond_count", diamond_count)
+                health = info_dict["inventory"].get("health", 0)
+                self.logger.record("values/health", health)
+                food = info_dict["inventory"].get("food", 0)  # food is meat
+                self.logger.record("values/food", food)
+                drink = info_dict["inventory"].get("drink", 0)
+                self.logger.record("values/drink", drink)
+                energy = info_dict["inventory"].get("energy", 0)
+                self.logger.record("values/energy", energy)
+
+            # Log custom reward if available from info_dict
+            if "custom_reward" in info_dict:
+                self.logger.record("reward/custom_reward", info_dict["custom_reward"])
+
+            # Log true reward if available from info_dict
+            if "true_reward" in info_dict:
+                self.logger.record("reward/true_reward", info_dict["true_reward"])
+
+        return True
 
 def set_global_seed(seed: int):
     """Sets seeds for python, numpy, and torch."""
